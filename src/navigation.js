@@ -1,10 +1,10 @@
-import { getPermalink, getBlogPermalink, getAsset } from './utils/permalinks';
+import { getPermalink, getBlogPermalink, getHomePermalink, getAsset } from './utils/permalinks';
 
 export const headerData = {
   links: [
     {
       text: '主页',
-      href: '/'
+      href: getHomePermalink()
     },
     {
       text: '我的博客',
