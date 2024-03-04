@@ -1,0 +1,79 @@
+---
+import { APP_BLOG } from '~/utils/config';
+import { getPermalink } from '~/utils/permalinks';
+import { fetchPosts } from '~/utils/blog';
+import Headline from '~/components/blog/Headline.astro';
+// import PageFind from '~/components/common/PageFind.astro';
+
+const posts = await fetchPosts();
+const tags = new Map();
+posts.map((post) => {
+  Array.isArray(post.tags) &&
+    post.tags.map((tag) => {
+      tags.has(tag) ? tags.set(tag, tags.get(tag) + 1) : tags.set(tag, 1);
+    });
+});
+
+const categories = new Map();
+posts.map((post) => {
+  if (Array.isArray(post.category)) {
+    post.category.map((key) => {
+      categories.has(key) ? categories.set(key, categories.get(key) + 1) : categories.set(key, 1);
+    });
+  } else if (typeof post.category === 'string') {
+    let key = post.category;
+    categories.has(key) ? categories.set(key, categories.get(key) + 1) : categories.set(key, 1);
+  }
+});
+---
+
+<!-- <PageFind class="mb-12"></PageFind> -->
+{
+  categories.size && (
+    <div class="mb-8">
+      <Headline title="目录" />
+      <div class="flex flex-wrap text-lg font-medium max-w-3xl">
+        {[...categories].map(([category, val]) => (
+          <div class="rounded-full border border-slate-500 dark:border-slate-100 inline-block mr-4 mb-6 py-1 px-3">
+            {!APP_BLOG?.category?.isEnabled ? (
+              category
+            ) : (
+              <a
+                href={getPermalink(category, 'category')}
+                class="hover:text-primary dark:hover:text-blue-400"
+              >
+                {category}
+                <span class="text-sm text-slate-400 pl-2">{val}</span>
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+{
+  tags.size && (
+    <div class="mb-8">
+      <Headline title="标签" />
+      <div class="flex flex-wrap text-lg font-medium max-w-3xl">
+        {[...tags].map(([tag, val]) => (
+          <div class="rounded-full border border-slate-500 dark:border-slate-100 inline-block mr-4 mb-6 py-1 px-3">
+            {!APP_BLOG?.tag?.isEnabled ? (
+              tag
+            ) : (
+              <a
+                href={getPermalink(tag, 'tag')}
+                class="hover:text-primary dark:hover:text-blue-400"
+              >
+                {tag}
+                <span class="text-sm text-slate-400 pl-2">{val}</span>
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
